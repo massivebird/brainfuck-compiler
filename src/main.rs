@@ -24,8 +24,8 @@ fn main() -> std::io::Result<()> {
 
     for inst in instructions {
         match inst.kind {
-            inst::Kind::IncPtr => writeln!(&mut buf, "addb r12, 1")?,
-            inst::Kind::DecPtr => writeln!(&mut buf, "subb r12, 1")?,
+            inst::Kind::IncPtr => writeln!(&mut buf, "add r12, 1")?,
+            inst::Kind::DecPtr => writeln!(&mut buf, "sub r12, 1")?,
             inst::Kind::IncByte => writeln!(&mut buf, "addb [r12], 1")?,
             inst::Kind::DecByte => writeln!(&mut buf, "subb [r12], 1")?,
             inst::Kind::WriteByte => {
@@ -42,8 +42,16 @@ fn main() -> std::io::Result<()> {
                 writeln!(&mut buf, "mov rdx, 1")?; // number of chars to print
                 writeln!(&mut buf, "syscall")?;
             }
-            inst::Kind::LoopStart { loop_end_idx } => todo!(),
-            inst::Kind::LoopEnd { loop_start_idx } => todo!(),
+            inst::Kind::LoopStart { loop_end_idx } => {
+                writeln!(&mut buf, "cmpb [r12], 0")?;
+                writeln!(&mut buf, "je LOOP_END_{}", loop_end_idx - 1)?;
+                writeln!(&mut buf, "LOOP_START_{}:", inst.idx)?;
+            }
+            inst::Kind::LoopEnd { loop_start_idx } => {
+                writeln!(&mut buf, "cmpb [r12], 0")?;
+                writeln!(&mut buf, "jne LOOP_START_{}", loop_start_idx - 1)?;
+                writeln!(&mut buf, "LOOP_END_{}:", inst.idx)?;
+            }
         }
     }
 

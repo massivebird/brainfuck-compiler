@@ -16,7 +16,7 @@ pub enum Kind {
 
 #[derive(Debug)]
 pub struct Inst {
-    idx: usize,
+    pub idx: usize,
     pub kind: Kind,
 }
 
