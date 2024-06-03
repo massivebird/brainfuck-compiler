@@ -27,8 +27,14 @@ fn main() -> std::io::Result<()> {
             inst::Kind::IncPtr => writeln!(&mut buf, "addb r12, 1")?,
             inst::Kind::DecPtr => writeln!(&mut buf, "subb r12, 1")?,
             inst::Kind::IncByte => writeln!(&mut buf, "addb [r12], 1")?,
-            inst::Kind::DecByte => todo!(),
-            inst::Kind::WriteByte => todo!(),
+            inst::Kind::DecByte => writeln!(&mut buf, "subb [r12], 1")?,
+            inst::Kind::WriteByte => {
+                writeln!(&mut buf, "mov rax, 0")?; // syscall code for "read" => 0
+                writeln!(&mut buf, "mov rdi, rax")?; // code for stdin => 0
+                writeln!(&mut buf, "mov rsi, r12")?; // buffer w addr to write to
+                writeln!(&mut buf, "mov rdx, 1")?; // number of chars to write
+                writeln!(&mut buf, "syscall")?;
+            }
             inst::Kind::PrintByte => {
                 writeln!(&mut buf, "mov rax, 1")?; // syscall code for "write" => 1
                 writeln!(&mut buf, "mov rdi, rax")?; // code for stdout => 1
